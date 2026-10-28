@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: workflow-backend
+    name: ai-workflow-designer-backend
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
@@ -11,23 +11,23 @@ services:
         value: render
       - key: DATABASE_HOST
         fromDatabase:
-          name: workflow-db
+          name: ai-workflow-designer-db
           property: host
       - key: DATABASE_PORT
         fromDatabase:
-          name: workflow-db
+          name: ai-workflow-designer-db
           property: port
       - key: DATABASE_NAME
         fromDatabase:
-          name: workflow-db
+          name: ai-workflow-designer-db
           property: database
       - key: DATABASE_USERNAME
         fromDatabase:
-          name: workflow-db
+          name: ai-workflow-designer-db
           property: user
       - key: DATABASE_PASSWORD
         fromDatabase:
-          name: workflow-db
+          name: ai-workflow-designer-db
           property: password
       # Random 256-bit secret generated on first deploy — satisfies the
       # >=32-byte JWT_SECRET policy without a dashboard round-trip.
@@ -42,17 +42,17 @@ services:
       # Frontend is a separate static site; the browser calls this API
       # directly, so its origin must be allowed here.
       - key: CORS_ALLOWED_ORIGINS
-        value: https://workflow-frontend.onrender.com
+        value: https://ai-workflow-designer-ui.onrender.com
       - key: SPRING_AI_OPENAI_CHAT_OPTIONS_MODEL
         value: gpt-4
       - key: SPRING_AI_OPENAI_EMBEDDING_OPTIONS_MODEL
         value: text-embedding-3-small
 
 databases:
-  - name: workflow-db
-    databaseName: workflow_designer
-    user: workflow_user
+  - name: ai-workflow-designer-db
+    databaseName: ai_workflow_designer
+    user: ai_workflow_user
     plan: free
-    postgresMajorVersion: '16'
+    postgresMajorVersion: '17'
     # No `extensions` field exists in the Blueprint spec — schema.sql runs
     # `CREATE EXTENSION IF NOT EXISTS vector` on first boot.
