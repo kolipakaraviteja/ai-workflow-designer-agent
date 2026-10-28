@@ -1,0 +1,22 @@
+package com.aiworkflow.designer.persistence.repository;
+
+import com.aiworkflow.designer.persistence.entity.BpmnKnowledge;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface BpmnKnowledgeRepository extends JpaRepository<BpmnKnowledge, UUID> {
+
+    List<BpmnKnowledge> findByKnowledgeType(String knowledgeType);
+
+    @Query("SELECT b FROM BpmnKnowledge b WHERE b.content LIKE %:keyword%")
+    List<BpmnKnowledge> searchByKeyword(@Param("keyword") String keyword);
+
+    @Query("SELECT b FROM BpmnKnowledge b WHERE CAST(b.metadata AS string) LIKE %:tag%")
+    List<BpmnKnowledge> findByMetadataContaining(@Param("tag") String tag);
+}

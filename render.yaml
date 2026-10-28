@@ -1,0 +1,58 @@
+services:
+  - type: web
+    name: workflow-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: render
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: workflow-db
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: workflow-db
+          property: port
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: workflow-db
+          property: database
+      - key: DATABASE_USERNAME
+        fromDatabase:
+          name: workflow-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: workflow-db
+          property: password
+      # Random 256-bit secret generated on first deploy — satisfies the
+      # >=32-byte JWT_SECRET policy without a dashboard round-trip.
+      - key: JWT_SECRET
+        generateValue: true
+      # Prompted for in the Render dashboard on creation. Policy: >=12 chars,
+      # no well-known passwords — startup refuses anything weaker.
+      - key: APP_ADMIN_PASSWORD
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      # Frontend is a separate static site; the browser calls this API
+      # directly, so its origin must be allowed here.
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://workflow-frontend.onrender.com
+      - key: SPRING_AI_OPENAI_CHAT_OPTIONS_MODEL
+        value: gpt-4
+      - key: SPRING_AI_OPENAI_EMBEDDING_OPTIONS_MODEL
+        value: text-embedding-3-small
+
+databases:
+  - name: workflow-db
+    databaseName: workflow_designer
+    user: workflow_user
+    plan: free
+    postgresMajorVersion: '16'
+    # No `extensions` field exists in the Blueprint spec — schema.sql runs
+    # `CREATE EXTENSION IF NOT EXISTS vector` on first boot.
